@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="权义改（月相序）· AI 产品经理 · 个人主页" />
+<title>权义改 · AI 产品经理</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23e6d5a8'/></svg>" />
+<style>
+  /* ============ 基础变量 ============ */
+  :root{
+    --bg:#04050c;
+    --bg-2:#080b18;
+    --ink:#eceaf4;
+    --ink-soft:#c3c6d8;
+    --muted:#8f96b4;
+    --gold:#e8d6a8;
+    --gold-2:#c9ab6b;
+    --cool:#9fc9ff;
+    --line:rgba(255,255,255,.09);
+    --glass:rgba(255,255,255,.045);
+    --glass-2:rgba(255,255,255,.07);
+    --radius:20px;
+    --serif:"Noto Serif SC","Songti SC","STSong",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,system-ui,sans-serif;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.9);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    min-height:100%;
+    background:
+      radial-gradient(1200px 700px at 78% -10%, rgba(122,146,214,.20), transparent 60%),
+      radial-gradient(900px 600px at 8% 12%, rgba(190,166,255,.12), transparent 62%),
+      radial-gradient(1000px 800px at 50% 120%, rgba(232,214,168,.10), transparent 65%),
+      linear-gradient(180deg,var(--bg-2) 0%, var(--bg) 45%, #05060f 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:rgba(232,214,168,.28)}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:.02em;line-height:1.25;margin:0}
+  p{margin:0}
+  canvas{display:block}
+
+  /* 星空背景 */
+  #stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+  /* 滚动进度 */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+    background:linear-gradient(90deg,transparent,var(--gold),var(--cool));
+    box-shadow:0 0 12px rgba(232,214,168,.7)}
+
+  /* ============ 导航 ============ */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:18px;padding:0 clamp(18px,5vw,64px);height:68px;
+    transition:background .4s ease,border-color .4s ease,backdrop-filter .4s ease;
+    border-bottom:1px solid transparent;
+  }
+  .nav.solid{background:rgba(6,8,18,.72);backdrop-filter:blur(14px) saturate(1.2);border-bottom-color:var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-size:19px;letter-spacing:.22em}
+  .brand i{width:11px;height:11px;border-radius:50%;
+    background:radial-gradient(circle at 35% 32%,#fff8e2,#d9c48d 60%,#8d7a4c);
+    box-shadow:0 0 16px rgba(232,214,168,.85);display:block}
+  .nav-links{display:flex;align-items:center;gap:6px}
+  .nav-links a{
+    position:relative;padding:8px 13px;font-size:14px;color:var(--ink-soft);
+    letter-spacing:.08em;border-radius:999px;transition:.25s;
+  }
+  .nav-links a:hover{color:#fff;background:var(--glass)}
+  .nav-links a.active{color:var(--gold)}
+  .nav-links a.active::after{
+    content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;
+    border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);
+  }
+  .nav-pill{
+    display:flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
+    border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;white-space:nowrap;
+  }
+  .nav-pill b{color:var(--gold);font-weight:600;letter-spacing:.1em}
+  @media(max-width:760px){ .nav-links{display:none} }
+
+  /* ============ 通用 ============ */
+  main{position:relative;z-index:1}
+  section{padding:clamp(72px,12vh,140px) clamp(18px,5vw,64px);position:relative}
+  .wrap{max-width:1180px;margin:0 auto;width:100%}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:20px
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+  .sec-head{margin-bottom:clamp(32px,5vw,56px)}
+  .sec-head h2{font-size:clamp(28px,4vw,42px)}
+  .sec-head h2 em{font-style:normal;color:var(--gold)}
+  .sec-head p{margin-top:16px;color:var(--muted);max-width:56ch;font-size:15px}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0ms)}
+  .reveal.in{opacity:1;transform:none}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 26px;border-radius:999px;
+    font-size:14.5px;letter-spacing:.08em;border:1px solid var(--line);background:var(--glass);
+    color:var(--ink);cursor:pointer;transition:.28s;backdrop-filter:blur(8px);font-family:inherit;
+  }
+  .btn:hover{transform:translateY(-2px);border-color:rgba(232,214,168,.5);box-shadow:0 12px 30px -14px rgba(232,214,168,.5)}
+  .btn.primary{
+    background:linear-gradient(135deg,rgba(232,214,168,.95),rgba(201,171,107,.85));
+    color:#15130c;border-color:transparent;font-weight:600;
+  }
+  .btn.primary:hover{box-shadow:0 16px 40px -14px rgba(232,214,168,.85)}
+  .btn.is-on{border-color:rgba(232,214,168,.6);color:var(--gold)}
+
+  /* ============ Hero ============ */
+  .hero{
+    min-height:100svh;display:flex;align-items:center;
+    padding-top:110px;padding-bottom:80px;
+  }
+  .hero .wrap{
+    display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    align-items:center;gap:clamp(24px,5vw,60px);width:100%;
+  }
+  .hero h1{font-size:clamp(38px,6.4vw,74px);letter-spacing:.01em}
+  .hero h1 .line{display:block}
+  .hero h1 .shine{
+    background:linear-gradient(100deg,#fff8e6 0%,var(--gold) 38%,#a9c6ff 78%,#fff 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 6px 34px rgba(232,214,168,.24));
+  }
+  .hero .lede{margin-top:26px;color:var(--ink-soft);font-size:clamp(15px,1.6vw,17px);max-width:46ch}
+  .hero h1 .nb{white-space:nowrap}
+  .hero .lede span{color:var(--gold)}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:26px;margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}
+  .hero-meta div small{display:block;font-size:11.5px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
+  .hero-meta div b{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--ink)}
+
+  .stage-wrap{display:flex;flex-direction:column;align-items:center;gap:22px}
+  .stage{position:relative;width:min(440px,84vw);aspect-ratio:1}
+  .stage .halo{
+    position:absolute;inset:-14%;border-radius:50%;
+    background:radial-gradient(circle,rgba(232,214,168,.16),rgba(159,201,255,.07) 45%,transparent 70%);
+    animation:breathe 7s ease-in-out infinite;will-change:transform,opacity;
+  }
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
+  .stage .ring{
+    position:absolute;inset:3%;border-radius:50%;border:1px dashed rgba(255,255,255,.14);
+    animation:spin 90s linear infinite;
+  }
+  .stage .ring.inner{inset:15%;border-style:solid;border-color:rgba(255,255,255,.06);animation-duration:60s;animation-direction:reverse}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #moonMain{position:absolute;inset:0;margin:auto;z-index:2}
+  .orbit{position:absolute;inset:0}
+  .orbit span{
+    position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;
+    background:rgba(255,255,255,.28);transform-origin:0 0;transition:.5s;
+  }
+  .orbit span.active{background:var(--gold);box-shadow:0 0 12px 2px rgba(232,214,168,.8);transform-origin:0 0}
+
+  .readout{
+    display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:999px;
+    background:var(--glass);backdrop-filter:blur(10px);overflow:hidden;
+  }
+  .readout div{padding:10px 20px;text-align:center;border-right:1px solid var(--line)}
+  .readout div:last-child{border-right:0}
+  .readout small{display:block;font-size:10.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+  .readout b{font-family:var(--serif);font-size:15.5px;font-weight:600;color:var(--ink)}
+  .stage-hint{font-size:12.5px;color:var(--muted);letter-spacing:.1em}
+
+  .scroll-cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:11px;letter-spacing:.3em}
+  .scroll-cue i{width:1px;height:44px;background:linear-gradient(180deg,var(--gold),transparent);animation:cue 2.2s ease-in-out infinite}
+  @keyframes cue{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+
+  /* ============ 月相卡片 ============ */
+  .phase-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  .pcard{
+    position:relative;padding:26px 20px 22px;border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+    backdrop-filter:blur(10px);cursor:pointer;transition:.4s cubic-bezier(.2,.7,.2,1);overflow:hidden;
+  }
+  .pcard::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:.4s;
+    background:radial-gradient(120% 90% at 50% 0%,rgba(232,214,168,.16),transparent 60%);
+  }
+  .pcard:hover{transform:translateY(-6px);border-color:rgba(232,214,168,.4);box-shadow:var(--shadow)}
+  .pcard:hover::after,.pcard.active::after{opacity:1}
+  .pcard.active{border-color:rgba(232,214,168,.55)}
+  .pcard .idx{position:absolute;top:14px;right:16px;font-size:11px;letter-spacing:.2em;color:var(--muted)}
+  .pcard canvas{margin:0 auto 14px}
+  .pcard h3{font-size:17px;text-align:center}
+  .pcard .en{display:block;text-align:center;font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-top:6px}
+  .pcard p{margin-top:12px;font-size:13px;color:var(--ink-soft);text-align:center;line-height:1.7}
+  .pcard .bar{margin-top:16px;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+  .pcard .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cool),var(--gold));width:0;transition:width .8s ease}
+
+  /* ============ 关于 ============ */
+  .about{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(28px,5vw,64px);align-items:center}
+  .portrait{
+    position:relative;aspect-ratio:1;border-radius:32px;border:1px solid var(--line);
+    background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.01));
+    display:grid;place-items:center;overflow:hidden;backdrop-filter:blur(8px);
+  }
+  .portrait::before{
+    content:"";position:absolute;width:150%;height:150%;will-change:transform;
+    background:conic-gradient(from 0deg,transparent,rgba(232,214,168,.16),transparent 40%);
+    animation:spin 18s linear infinite;
+  }
+  .about-body h2{font-size:clamp(26px,3.6vw,38px);margin-bottom:20px}
+  .about-body p{color:var(--ink-soft);margin-bottom:16px}
+  .about-body p b{color:var(--gold);font-weight:600}
+  .tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+  .tags span{
+    padding:7px 15px;font-size:12.5px;letter-spacing:.08em;border-radius:999px;
+    border:1px solid var(--line);background:var(--glass);color:var(--ink-soft);transition:.25s
+  }
+  .tags span:hover{color:var(--gold);border-color:rgba(232,214,168,.45);transform:translateY(-2px)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px}
+  .stats div{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--glass)}
+  .stats b{display:block;font-family:var(--serif);font-size:26px;color:var(--gold)}
+  .stats small{font-size:12px;color:var(--muted);letter-spacing:.12em}
+
+  /* ============ 作品 ============ */
+  .works{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .work{
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    background:var(--glass);transition:.4s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column
+  }
+  .work:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:rgba(159,201,255,.34)}
+  .work .thumb{height:170px;position:relative;overflow:hidden}
+  .work .thumb::after{content:"";position:absolute;inset:0;background:radial-gradient(80% 70% at 30% 20%,rgba(255,255,255,.22),transparent 60%)}
+  .work:nth-child(1) .thumb{background:linear-gradient(135deg,#1b2444,#3a2f52 55%,#6c5a7a)}
+  .work:nth-child(2) .thumb{background:linear-gradient(135deg,#0f2233,#22475c 60%,#3f7d8c)}
+  .work:nth-child(3) .thumb{background:linear-gradient(135deg,#2a2033,#5a4136 60%,#8d7350)}
+  .work .thumb span{
+    position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.35);
+  }
+  .work .body{padding:22px 22px 26px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .work .body h3{font-size:18px}
+  .work .body p{font-size:13.5px;color:var(--muted);flex:1}
+  .work .body em{font-style:normal;font-size:11.5px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+
+  /* ============ 联系 ============ */
+  .contact{text-align:center}
+  .contact h2{font-size:clamp(28px,4.6vw,50px)}
+  .contact .mail{
+    display:inline-flex;align-items:center;gap:12px;margin-top:26px;padding:14px 26px;border-radius:999px;
+    border:1px solid rgba(232,214,168,.35);background:var(--glass);font-family:var(--serif);font-size:clamp(15px,2.4vw,22px);
+    letter-spacing:.04em;cursor:pointer;transition:.3s
+  }
+  .contact .mail:hover{background:rgba(232,214,168,.12);transform:translateY(-2px)}
+  .socials{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:30px}
+  .socials a,.socials button{
+    padding:10px 20px;border-radius:999px;border:1px solid var(--line);font-size:13.5px;
+    color:var(--ink-soft);transition:.25s;background:transparent;font-family:inherit;line-height:inherit;cursor:pointer
+  }
+  .socials a:hover,.socials button:hover{color:#fff;border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+
+  /* 公众号二维码弹层 */
+  body.modal-open{overflow:hidden}
+  .qr-dialog{
+    width:min(420px,calc(100vw - 32px));max-width:none;margin:auto;padding:0;border:0;
+    border-radius:26px;background:transparent;color:var(--ink);overflow:visible
+  }
+  .qr-dialog[open]{animation:qr-in .28s cubic-bezier(.2,.7,.2,1)}
+  .qr-dialog::backdrop{background:rgba(1,2,8,.76);backdrop-filter:blur(10px)}
+  .qr-card{
+    position:relative;padding:34px 30px 28px;text-align:center;border:1px solid rgba(232,214,168,.24);
+    border-radius:26px;background:linear-gradient(160deg,rgba(22,25,43,.98),rgba(8,10,21,.98));
+    box-shadow:0 30px 90px rgba(0,0,0,.65)
+  }
+  .qr-card .eyebrow{margin-bottom:10px;justify-content:center}
+  .qr-card h2{font-size:28px}
+  .qr-card > p{margin-top:10px;color:var(--muted);font-size:13.5px}
+  .qr-frame{
+    width:min(290px,100%);margin:22px auto 0;padding:12px;border-radius:20px;
+    background:#fff;box-shadow:0 18px 48px -18px rgba(159,201,255,.42)
+  }
+  .qr-frame img{display:block;width:100%;height:auto;border-radius:12px}
+  .qr-close{
+    position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+    background:var(--glass);color:var(--ink-soft);font-size:22px;line-height:1;cursor:pointer;transition:.25s
+  }
+  .qr-close:hover{color:#fff;border-color:rgba(255,255,255,.3);transform:rotate(6deg)}
+  @keyframes qr-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+  footer{
+    position:relative;z-index:1;padding:44px clamp(18px,5vw,64px);border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
+    font-size:12.5px;color:var(--muted);letter-spacing:.1em
+  }
+  .toast{
+    position:fixed;left:50%;bottom:34px;transform:translate(-50%,20px);z-index:80;
+    padding:12px 22px;border-radius:999px;border:1px solid rgba(232,214,168,.4);
+    background:rgba(10,12,24,.92);backdrop-filter:blur(10px);font-size:13.5px;color:var(--gold);
+    opacity:0;pointer-events:none;transition:.35s
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ============ 响应式 ============ */
+  @media(max-width:1000px){
+    .phase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .works{grid-template-columns:1fr}
+    .about{grid-template-columns:1fr}
+    .portrait{max-width:360px;margin:0 auto}
+  }
+  @media(max-width:860px){
+    .hero{padding-top:96px}
+    .hero .wrap{grid-template-columns:1fr;text-align:center}
+    .hero .lede{margin-left:auto;margin-right:auto}
+    .hero-actions,.hero-meta{justify-content:center}
+    .stage{order:-1;width:min(320px,78vw)}
+    .eyebrow{justify-content:center}
+    .scroll-cue{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<canvas id="stars"></canvas>
+
+<!-- ================= 导航 ================= -->
+<header class="nav" id="nav">
+  <a class="brand" href="#home"><i></i>权义改</a>
+  <nav class="nav-links" id="navLinks">
+    <a href="#home" class="active">首页</a>
+    <a href="#lunar">月相</a>
+    <a href="#about">关于</a>
+    <a href="#works">作品</a>
+    <a href="#contact">联系</a>
+  </nav>
+  <div class="nav-pill">今日 <b id="navPhase">满月</b></div>
+</header>
+
+<main>
+  <!-- ================= Hero ================= -->
+  <section class="hero" id="home">
+    <div class="wrap">
+      <div class="hero-text">
+        <span class="eyebrow reveal">Moonlight Journal · 个人主页</span>
+        <!-- ✏️ 名字与自我介绍可自行修改 -->
+        <h1 class="reveal" style="--d:80ms">
+          <!-- <span class="line">我是 <span class="shine">权义改</span></span> -->
+          <span class="line">在盈亏之间，<span class="nb">做长期的事</span></span>
+        </h1>
+        <p class="lede reveal" style="--d:160ms">
+          AI 产品经理 / 关注大模型落地与真实体验。<br />
+          在这个叫「月相序」的地方，我相信万事都有自己的<span>月相</span>——<br />
+          有盈有亏，有暗有明，安静地循环，也安静地生长。
+        </p>
+        <div class="hero-actions reveal" style="--d:240ms">
+          <a class="btn primary" href="#works">看看我的作品</a>
+          <button class="btn" id="btnReal">☾ 回到今日月相</button>
+          <button class="btn is-on" id="btnCycle">↻ 循环月相</button>
+        </div>
+        <div class="hero-meta reveal" style="--d:320ms">
+          <div><small>Moon Age</small><b id="mAge">—</b></div>
+          <div><small>Illumination</small><b id="mIllum">—</b></div>
+          <div><small>Location</small><b>杭州 · 30°N</b></div>
+        </div>
+      </div>
+
+      <div class="stage-wrap reveal" style="--d:200ms">
+        <div class="stage">
+          <div class="halo"></div>
+          <div class="ring"></div>
+          <div class="ring inner"></div>
+          <canvas id="moonMain"></canvas>
+          <div class="orbit" id="orbit"></div>
+        </div>
+        <div class="readout">
+          <div><small>Phase</small><b id="rName">满月</b></div>
+          <div><small>English</small><b id="rEn">Full Moon</b></div>
+          <div><small>Date</small><b id="rDate">—</b></div>
+        </div>
+        <p class="stage-hint">← → 方向键拨动月相 · 点击下方卡片可归位</p>
+      </div>
+    </div>
+    <div class="scroll-cue"><span>SCROLL</span><i></i></div>
+  </section>
+
+  <!-- ================= 月相八记 ================= -->
+  <section id="lunar">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">01 — Lunar Phases</span>
+        <h2>月相<em>八记</em></h2>
+        <p>一个朔望月约 29.53 天，月亮走完八种形态。从新月到残月，像一年里我认真过的那些日子。</p>
+      </div>
+      <div class="phase-grid" id="phaseGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= 关于 ================= -->
+  <section id="about">
+    <div class="wrap about">
+      <div class="portrait reveal">
+        <canvas id="moonAbout" width="260" height="260"></canvas>
+      </div>
+      <div class="about-body reveal" style="--d:120ms">
+        <span class="eyebrow">02 — About</span>
+        <h2>白天定义问题，夜里看月亮</h2>
+        <!-- ✏️ 替换为你的自我介绍 -->
+        <p>你好，我是 <b>权义改</b>，一名 AI 产品经理。日常是把模糊的想法，翻译成能上线、能验证、能迭代的东西。</p>
+        <p>这个站点叫「月相序」——一切都在变，但变化有它自己的节律。我喜欢用这种节律去看需求、看数据、看一个功能从无到有。</p>
+        <p>我喜欢把复杂的东西收拾清楚：模型能力的边界、交互路径、评测指标，以及那些用户说不出但能感觉到的小细节。</p>
+        <p>业余时间拍夜景、写产品复盘、在开源社区提 issue。<b>如果一件事值得做，就值得做得清楚一点。</b></p>
+        <div class="tags">
+          <span>AI 产品设计</span><span>LLM 应用</span><span>RAG / Agent</span>
+          <span>评测与数据</span><span>用户研究</span><span>Prompt 设计</span><span>夜景摄影</span>
+        </div>
+        <div class="stats">
+          <div><b>6<span style="font-size:14px">年</span></b><small>产品经验</small></div>
+          <div><b>20<span style="font-size:14px">+</span></b><small>上线功能</small></div>
+          <div><b>3<span style="font-size:14px">个</span></b><small>从 0 到 1</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 作品 ================= -->
+  <section id="works">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">03 — Selected Works</span>
+        <h2>一些<em>留下光</em>的作品</h2>
+        <p>挑了三件我自己最常翻出来看的。它们不完美，但都在某个深夜被认真对待过。</p>
+      </div>
+      <div class="works" id="works-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= 联系 ================= -->
+  <section id="contact" class="contact">
+    <div class="wrap reveal">
+      <span class="eyebrow">04 — Contact</span>
+      <h2>随时可以找我聊聊</h2>
+      <div class="mail" id="mailBtn" title="点击复制">
+        <span>✉</span><span id="mailText">juancarlosvalorbitancourt@gmail.com</span>
+      </div>
+      <div class="socials">
+        <a href="https://github.com/yuexiangxu" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.xiaohongshu.com/explore" target="_blank" rel="noopener noreferrer">小红书</a>
+        <button type="button" id="wechatBtn" aria-haspopup="dialog" aria-controls="wechatDialog">公众号</button>
+        <a href="#" onclick="return false">作品集 PDF</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span id="year"></span> 权义改 · All rights reserved</span>
+  <span>Made with moonlight &amp; vanilla JavaScript</span>
+</footer>
+
+<dialog class="qr-dialog" id="wechatDialog" aria-labelledby="wechatTitle">
+  <div class="qr-card">
+    <button class="qr-close" id="wechatClose" type="button" aria-label="关闭公众号二维码">×</button>
+    <span class="eyebrow">WeChat Official Account</span>
+    <h2 id="wechatTitle">微信公众号</h2>
+    <p>打开微信扫一扫，关注我的公众号</p>
+    <div class="qr-frame">
+      <img src="assets/wechat-qr.jpg" width="430" height="430" alt="权义改微信公众号二维码" />
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast">已复制到剪贴板</div>
+
+<script>
+/* ============================================================
+   1. 月相计算 & 绘制
+   ============================================================ */
+const SYNODIC = 29.530588853;                  // 朔望月长度（天）
+const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14); // 已知新月时刻
+
+/** 返回 0~1：0 = 新月，0.5 = 满月，1 = 下一个新月 */
+function realPhase(t = Date.now()) {
+  const days = (t - REF_NEW_MOON) / 86400000;
+  return ((days / SYNODIC) % 1 + 1) % 1;
+}
+const mod1 = v => ((v % 1) + 1) % 1;
+
+const PHASES = [
+  { name:'新月',   en:'New Moon',        p:0.000, desc:'光藏于暗处，是一切开始前的深呼吸。' },
+  { name:'娥眉月', en:'Waxing Crescent', p:0.125, desc:'细小的弧光，第一次试探着望向人间。' },
+  { name:'上弦月', en:'First Quarter',   p:0.250, desc:'一半明亮一半留白，像未写完的计划。' },
+  { name:'盈凸月', en:'Waxing Gibbous',  p:0.375, desc:'光一点点涨满，耐心的人先看到答案。' },
+  { name:'满月',   en:'Full Moon',       p:0.500, desc:'万物被照亮，也照亮了心里的褶皱。' },
+  { name:'亏凸月', en:'Waning Gibbous',  p:0.625, desc:'开始舍去，把满溢的部分交还给夜。' },
+  { name:'下弦月', en:'Last Quarter',    p:0.750, desc:'收拢、整理，把喧哗调成静音。' },
+  { name:'残月',   en:'Waning Crescent', p:0.875, desc:'只剩一线微光，也足够指向黎明。' }
+];
+const phaseIndex = p => Math.round(mod1(p) * 8) % 8;
+const illum = p => (1 - Math.cos(2 * Math.PI * mod1(p))) / 2;
+
+/** 构建被照亮区域的路径（朔为右，望后为左，北半球视角） */
+function moonLitPath(ctx, cx, cy, r, p) {
+  p = mod1(p);
+  const c = Math.cos(2 * Math.PI * p);
+  const a = Math.abs(r * c);
+  const waxing = p < 0.5;
+  ctx.beginPath();
+  if (waxing) {
+    ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);           // 右半边轮廓
+    if (c >= 0) ctx.ellipse(cx, cy, a, r, 0, Math.PI / 2, -Math.PI / 2, true);   // 娥眉
+    else        ctx.ellipse(cx, cy, a, r, 0, Math.PI / 2, Math.PI * 1.5, false); // 盈凸
+  } else {
+    ctx.arc(cx, cy, r, Math.PI / 2, Math.PI * 1.5, false);          // 左半边轮廓
+    if (c < 0)  ctx.ellipse(cx, cy, a, r, 0, -Math.PI / 2, Math.PI / 2, false);  // 亏凸
+    else        ctx.ellipse(cx, cy, a, r, 0, -Math.PI / 2, -Math.PI * 1.5, true);// 残月
+  }
+  ctx.closePath();
+}
+
+const CRATERS = [
+  [-.30,-.22,.20],[-.06,.10,.13],[ .32,-.30,.11],[ .22,.30,.16],
+  [-.38,.30,.09],[ .05,-.46,.07],[ .44,.06,.08],[-.16,-.02,.06],
+  [ .12,.52,.05],[-.52,-.04,.05]
+];
+function drawCraters(ctx, cx, cy, r) {
+  for (const [dx, dy, rr] of CRATERS) {
+    const x = cx + dx * r, y = cy + dy * r, rad = rr * r;
+    const g = ctx.createRadialGradient(x - rad * .3, y - rad * .3, rad * .08, x, y, rad);
+    g.addColorStop(0,   'rgba(118,112,94,.32)');
+    g.addColorStop(.65, 'rgba(146,138,116,.16)');
+    g.addColorStop(1,   'rgba(255,252,240,.06)');
+    ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fillStyle = g; ctx.fill();
+  }
+}
+
+/** 在 ctx 上以 (cx,cy) 为心、半径 r 画出相位为 p 的月亮 */
+function paintMoon(ctx, cx, cy, r, p, opt = {}) {
+  const glowR = r * (opt.glowScale || 2.3);
+  // 外发光
+  const halo = ctx.createRadialGradient(cx, cy, r * .55, cx, cy, glowR);
+  halo.addColorStop(0,  `rgba(255,244,206,${opt.glow != null ? opt.glow : .18})`);
+  halo.addColorStop(.45,'rgba(170,196,255,.06)');
+  halo.addColorStop(1,  'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, 7); ctx.fillStyle = halo; ctx.fill();
+
+  // 暗面（地球反照）
+  const dark = ctx.createRadialGradient(cx - r * .3, cy - r * .35, r * .1, cx, cy, r * 1.1);
+  dark.addColorStop(0, '#1c2340'); dark.addColorStop(1, '#080b17');
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fillStyle = dark; ctx.fill();
+  ctx.lineWidth = Math.max(1, r * .018);
+  ctx.strokeStyle = 'rgba(255,255,255,.09)'; ctx.stroke();
+
+  // 亮面
+  ctx.save();
+  moonLitPath(ctx, cx, cy, r, p);
+  ctx.clip();
+  const lx = cx + Math.cos(2 * Math.PI * mod1(p) - Math.PI / 2) * r * .45;
+  const lit = ctx.createRadialGradient(lx, cy - r * .3, r * .12, cx, cy, r * 1.15);
+  lit.addColorStop(0,   '#fffdf3');
+  lit.addColorStop(.55, '#efe6cd');
+  lit.addColorStop(1,   '#c6bda2');
+  ctx.fillStyle = lit; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  drawCraters(ctx, cx, cy, r);
+  // 边缘减光
+  const limb = ctx.createRadialGradient(cx, cy, r * .72, cx, cy, r);
+  limb.addColorStop(0, 'rgba(0,0,0,0)'); limb.addColorStop(1, 'rgba(20,16,8,.30)');
+  ctx.fillStyle = limb; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  ctx.restore();
+}
+
+/* ============================================================
+   2. 星空背景
+   ============================================================ */
+(function starfield() {
+  const cv = document.getElementById('stars');
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, stars = [], shots = [], dpr = 1;
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.round((W * H) / 9000);
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.25 + .25,
+      a: Math.random() * .55 + .18,
+      sp: Math.random() * .0011 + .0004,
+      ph: Math.random() * Math.PI * 2,
+      warm: Math.random() > .78
+    }));
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  let last = 0, nextShot = performance.now() + 6000;
+  function frame(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      const tw = reduce ? 1 : .55 + .45 * Math.sin(t * s.sp + s.ph);
+      ctx.globalAlpha = Math.min(1, s.a * tw);
+      ctx.fillStyle = s.warm ? '#ffeec9' : '#e6efff';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (!reduce) {
+      if (t > nextShot) {
+        nextShot = t + 6000 + Math.random() * 9000;
+        const sx = Math.random() * W * .8 + W * .1;
+        shots.push({ x: sx, y: Math.random() * H * .35, len: 140 + Math.random() * 120, life: 0 });
+      }
+      for (let i = shots.length - 1; i >= 0; i--) {
+        const sh = shots[i]; sh.life += .022;
+        if (sh.life > 1) { shots.splice(i, 1); continue; }
+        const k = Math.sin(sh.life * Math.PI);
+        const x2 = sh.x + sh.len * sh.life * 1.4, y2 = sh.y + sh.len * sh.life * .8;
+        const g = ctx.createLinearGradient(sh.x, sh.y, x2, y2);
+        g.addColorStop(0, 'rgba(255,250,230,0)');
+        g.addColorStop(.7, `rgba(255,250,230,${.7 * k})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(x2, y2); ctx.stroke();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ============================================================
+   3. 主月亮（Hero）
+   ============================================================ */
+const mainCv = document.getElementById('moonMain');
+const mctx = mainCv.getContext('2d');
+let phaseNow = realPhase();      // 当前显示的相位
+let phaseTarget = phaseNow;      // 目标相位
+let cycling = true;              // 是否自动循环
+const CYCLE_SPEED = 1 / 20800;   // 相位/毫秒：约 20.8 秒走完一个朔望月
+
+/** 让目标相位沿最短弧线走向 p（避免月亮多绕几圈） */
+function aimAt(p) {
+  let delta = mod1(p) - mod1(phaseTarget);
+  if (delta >  .5) delta -= 1;
+  if (delta < -.5) delta += 1;
+  phaseTarget += delta;
+}
+
+function sizeMain() {
+  const box = mainCv.parentElement.getBoundingClientRect();
+  const size = Math.max(220, Math.min(box.width, box.height)) * .92;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  mainCv.width = size * dpr; mainCv.height = size * dpr;
+  mainCv.style.width = size + 'px'; mainCv.style.height = size + 'px';
+  mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mainCv._size = size;
+  return size;
+}
+sizeMain();
+addEventListener('resize', () => { sizeMain(); paintMain(0); layoutOrbit(); });
+
+function paintMain() {
+  const size = mainCv._size || sizeMain();
+  mctx.clearRect(0, 0, size, size);
+  paintMoon(mctx, size / 2, size / 2, size * .33, phaseNow);
+}
+
+/* 轨道上的 8 个点 */
+const orbitEl = document.getElementById('orbit');
+PHASES.forEach((ph, i) => {
+  const d = document.createElement('span');
+  d.dataset.i = i;
+  orbitEl.appendChild(d);
+});
+function layoutOrbit() {
+  const box = orbitEl.getBoundingClientRect();
+  const R = box.width / 2 * .86;
+  [...orbitEl.children].forEach((el, i) => {
+    const ang = (i / 8) * 360 - 90;
+    el.style.transform = `translate(-50%,-50%) rotate(${ang}deg) translateY(${-R}px)`;
+  });
+}
+layoutOrbit();
+
+/* 循环 / 归位 */
+function startCycle() {
+  cycling = true;
+  document.getElementById('btnCycle').classList.add('is-on');
+}
+function stopCycle() {
+  cycling = false;
+  document.getElementById('btnCycle').classList.remove('is-on');
+}
+document.getElementById('btnCycle').addEventListener('click', () => cycling ? stopCycle() : startCycle());
+document.getElementById('btnReal').addEventListener('click', () => {
+  stopCycle();
+  aimAt(realPhase());
+  toast('已回到今日月相');
+});
+
+/* 方向键微调 */
+addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if (/input|textarea/i.test(document.activeElement.tagName)) return;
+  stopCycle();
+  phaseTarget += e.key === 'ArrowRight' ? 0.0625 : -0.0625;
+});
+startCycle();
+
+/* ============================================================
+   4. 相位读数 & 卡片
+   ============================================================ */
+const rName = document.getElementById('rName');
+const rEn = document.getElementById('rEn');
+const rDate = document.getElementById('rDate');
+const mAge = document.getElementById('mAge');
+const mIllum = document.getElementById('mIllum');
+const navPhase = document.getElementById('navPhase');
+const grid = document.getElementById('phaseGrid');
+const cards = [];
+
+PHASES.forEach((ph, i) => {
+  const el = document.createElement('article');
+  el.className = 'pcard reveal';
+  el.style.setProperty('--d', (i * 70) + 'ms');
+  el.innerHTML = `
+    <span class="idx">0${i + 1}</span>
+    <canvas width="96" height="96"></canvas>
+    <h3>${ph.name}</h3>
+    <span class="en">${ph.en}</span>
+    <p>${ph.desc}</p>
+    <div class="bar"><i></i></div>`;
+  el.addEventListener('click', () => {
+    stopCycle();
+    aimAt(i / 8);
+    toast(`月亮走到了「${ph.name}」`);
+  });
+  grid.appendChild(el);
+  cards.push(el);
+
+  const cv = el.querySelector('canvas');
+  const c = cv.getContext('2d');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = 96 * dpr; cv.height = 96 * dpr;
+  cv.style.width = '96px'; cv.style.height = '96px';
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  paintMoon(c, 48, 48, 30, ph.p, { glowScale: 1.9, glow: .16 });
+  el.querySelector('.bar i').style.width = (illum(ph.p) * 100).toFixed(0) + '%';
+});
+
+/* 关于我里的那轮小月亮 */
+(function () {
+  const cv = document.getElementById('moonAbout');
+  const c = cv.getContext('2d');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = 260 * dpr; cv.height = 260 * dpr;
+  cv.style.width = '78%'; cv.style.height = 'auto';
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  paintMoon(c, 130, 130, 78, realPhase(), { glowScale: 1.75, glow: .2 });
+})();
+
+/* 作品数据（✏️ 自行替换） */
+const WORKS = [
+  { tag:'AI Product · 2025', title:'月相日历', desc:'一个听得懂自然语言的日历助手，把待办、节律与月相放进同一条时间线。' },
+  { tag:'LLM Application · 2024', title:'夜航 · 知识库问答', desc:'面向内部文档的 RAG 问答产品，从 0 到 1 定义评测集与反馈闭环。' },
+  { tag:'Data Product · 2023', title:'星轨 · 指标看板', desc:'为运营团队重做的指标体系，把 40 张分散报表收敛成 3 个核心视图。' }
+];
+const worksGrid = document.getElementById('works-grid');
+WORKS.forEach((w, i) => {
+  const el = document.createElement('article');
+  el.className = 'work reveal';
+  el.style.setProperty('--d', (i * 110) + 'ms');
+  const s1 = 60 + i * 18, s2 = 120 + i * 26;
+  el.innerHTML = `
+    <div class="thumb">
+      <span style="width:${s1}px;height:${s1}px;left:${12 + i * 6}%;top:${18}%;background:radial-gradient(circle at 36% 32%,#fffbee,#ded0a4 62%,#96824f)"></span>
+      <span style="width:${s2}px;height:${s2}px;right:-6%;bottom:-24%"></span>
+    </div>
+    <div class="body">
+      <em>${w.tag}</em>
+      <h3>${w.title}</h3>
+      <p>${w.desc}</p>
+    </div>`;
+  worksGrid.appendChild(el);
+});
+
+/* ============================================================
+   5. UI 交互
+   ============================================================ */
+const fmtDate = d => `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+function updateReadout() {
+  const p = mod1(phaseNow);
+  const i = phaseIndex(p);
+  rName.textContent = PHASES[i].name;
+  rEn.textContent = PHASES[i].en;
+  rDate.textContent = fmtDate(new Date());
+  mAge.textContent = (p * SYNODIC).toFixed(1) + ' 天';
+  mIllum.textContent = (illum(p) * 100).toFixed(0) + '%';
+  navPhase.textContent = PHASES[i].name;
+  cards.forEach((c, k) => c.classList.toggle('active', k === i));
+  [...orbitEl.children].forEach((d, k) => d.classList.toggle('active', k === i));
+}
+const rp0 = realPhase();
+rName.textContent = PHASES[phaseIndex(rp0)].name;
+rEn.textContent = PHASES[phaseIndex(rp0)].en;
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* 主循环 */
+let prev = Date.now(), acc = 0;
+function loop(t) {
+  const dt = Math.min(Date.now() - prev, 500); prev = Date.now();
+  if (cycling) phaseTarget += dt * CYCLE_SPEED;              // 按真实时间推进
+  phaseNow += (phaseTarget - phaseNow) * (1 - Math.exp(-dt / 260)); // 与帧率无关的平滑收敛
+  paintMain();
+  acc += dt;
+  if (acc > 100) { acc = 0; updateReadout(); }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+updateReadout();
+
+/* 滚动进度 + 导航态 + 入场 */
+const nav = document.getElementById('nav');
+const progress = document.getElementById('progress');
+function onScroll() {
+  const h = document.documentElement;
+  const max = h.scrollHeight - innerHeight;
+  progress.style.width = (max > 0 ? Math.min(100, (h.scrollTop / max) * 100) : 0) + '%';
+  nav.classList.toggle('solid', h.scrollTop > 40);
+}
+onScroll();
+addEventListener('scroll', onScroll, { passive: true });
+
+const io = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: .16 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const links = [...document.querySelectorAll('#navLinks a')];
+const spy = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, { rootMargin: '-45% 0px -50% 0px' });
+['home', 'lunar', 'about', 'works', 'contact'].forEach(id => {
+  const el = document.getElementById(id); if (el) spy.observe(el);
+});
+
+/* 复制邮箱 */
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+}
+document.getElementById('mailBtn').addEventListener('click', async () => {
+  const text = document.getElementById('mailText').textContent.trim();
+  try { await navigator.clipboard.writeText(text); toast('邮箱已复制：' + text); }
+  catch { toast(text); }
+});
+
+/* 公众号二维码 */
+const wechatDialog = document.getElementById('wechatDialog');
+document.getElementById('wechatBtn').addEventListener('click', () => {
+  wechatDialog.showModal();
+  document.body.classList.add('modal-open');
+});
+document.getElementById('wechatClose').addEventListener('click', () => wechatDialog.close());
+wechatDialog.addEventListener('click', e => {
+  const box = wechatDialog.getBoundingClientRect();
+  const inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+  if (!inside) wechatDialog.close();
+});
+wechatDialog.addEventListener('close', () => document.body.classList.remove('modal-open'));
+</script>
+</body>
+</html>
