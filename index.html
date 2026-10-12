@@ -29,7 +29,7 @@
   html{scroll-behavior:smooth}
   body{
     margin:0;
-    min-height:100svh;
+    min-height:100svh;min-height:100dvh;display:flex;flex-direction:column;
     background:
       radial-gradient(1200px 700px at 78% -10%, rgba(122,146,214,.20), transparent 60%),
       radial-gradient(900px 600px at 8% 12%, rgba(190,166,255,.12), transparent 62%),
@@ -90,7 +90,7 @@
   @media(max-width:760px){ .nav-links{display:none} }
 
   /* ============ 通用 ============ */
-  main{position:relative;z-index:1}
+  main{position:relative;z-index:1;flex:1}
   section{padding:clamp(72px,12vh,140px) clamp(18px,5vw,64px);position:relative}
   .wrap{max-width:1180px;margin:0 auto;width:100%}
   .eyebrow{
@@ -291,7 +291,7 @@
   @keyframes qr-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 
   footer{
-    position:relative;z-index:1;padding:8px clamp(18px,5vw,64px);border-top:1px solid var(--line);
+    flex-shrink:0;position:relative;z-index:1;padding:8px clamp(18px,5vw,64px);border-top:1px solid var(--line);
     display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
     font-size:12.5px;color:var(--muted);letter-spacing:.1em
   }
@@ -402,9 +402,9 @@
           <button class="btn" type="button" id="btnCycle">↻ 演示月相</button>
         </div>
         <div class="hero-meta reveal" style="--d:320ms">
-          <div><small title="距上一次新月经过的天数（估算）">月龄</small><b id="mAge">—</b></div>
-          <div><small title="从地球看到的月面中，被太阳照亮的比例（估算）">亮面比例</small><b id="mIllum">—</b></div>
-          <div><small>Location</small><b>北京 · 40°N</b></div>
+          <div><small title="距上一次新月经过的天数">月龄</small><b id="mAge">—</b></div>
+          <div><small title="从地球看到的月面中，被太阳照亮的比例">亮面比例</small><b id="mIllum">—</b></div>
+          <div><small>Location</small><b>北京 · 39.93°N</b></div>
         </div>
       </div>
 
@@ -421,7 +421,7 @@
           <div><small>English</small><b id="rEn">Full Moon</b></div>
           <div><small>Date</small><b id="rDate">—</b></div>
         </div>
-        <p class="stage-hint" id="phaseHint">今日月相（估算） · ← → 预览</p>
+        <p class="stage-hint" id="phaseHint">今日月相</p>
       </div>
     </div>
     <!-- <div class="scroll-cue"><span>SCROLL</span><i></i></div> -->
@@ -522,23 +522,22 @@
 
 <div class="toast" id="toast">已复制到剪贴板</div>
 
+<script src="assets/vendor/astronomy-engine-2.1.19.min.js"></script>
+<script src="assets/moon-state.js"></script>
 <script>
 /* ============================================================
    1. 月相计算 & 绘制
    ============================================================ */
 const SYNODIC = 29.530588853;                  // 朔望月长度（天）
-const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14); // 已知新月时刻
-
-/** 返回 0~1：0 = 新月，0.5 = 满月，1 = 下一个新月 */
+/** 真实日月位置计算；不用平均朔望月周期外推。 */
 function realPhase(t = Date.now()) {
-  const days = (t - REF_NEW_MOON) / 86400000;
-  return ((days / SYNODIC) % 1 + 1) % 1;
+  return Lunar.current(t).phase;
 }
 const mod1 = v => ((v % 1) + 1) % 1;
 
 const PHASES = [
   { name:'新月',   en:'New Moon',        p:0.000, desc:'光藏于暗处，是一切开始前的深呼吸。' },
-  { name:'娥眉月', en:'Waxing Crescent', p:0.125, desc:'细小的弧光，第一次试探着望向人间。' },
+  { name:'蛾眉月', en:'Waxing Crescent', p:0.125, desc:'细小的弧光，第一次试探着望向人间。' },
   { name:'上弦月', en:'First Quarter',   p:0.250, desc:'一半明亮一半留白，像未写完的计划。' },
   { name:'盈凸月', en:'Waxing Gibbous',  p:0.375, desc:'光一点点涨满，耐心的人先看到答案。' },
   { name:'满月',   en:'Full Moon',       p:0.500, desc:'万物被照亮，也照亮了心里的褶皱。' },
@@ -546,13 +545,21 @@ const PHASES = [
   { name:'下弦月', en:'Last Quarter',    p:0.750, desc:'收拢、整理，把喧哗调成静音。' },
   { name:'残月',   en:'Waning Crescent', p:0.875, desc:'只剩一线微光，也足够指向黎明。' }
 ];
-const phaseIndex = p => Math.round(mod1(p) * 8) % 8;
+function phaseIndex(p) {
+  const angle = mod1(p) * 360;
+  // Primary phases are short events; don't label a visible crescent as new moon.
+  if (angle < 1 || angle >= 359) return 0;
+  if (Math.abs(angle - 90) < 1) return 2;
+  if (Math.abs(angle - 180) < 1) return 4;
+  if (Math.abs(angle - 270) < 1) return 6;
+  return angle < 90 ? 1 : angle < 180 ? 3 : angle < 270 ? 5 : 7;
+}
 const illum = p => (1 - Math.cos(2 * Math.PI * mod1(p))) / 2;
 
 /** 构建被照亮区域的路径（朔为右，望后为左，北半球视角） */
-function moonLitPath(ctx, cx, cy, r, p) {
+function moonLitPath(ctx, cx, cy, r, p, fraction) {
   p = mod1(p);
-  const c = Math.cos(2 * Math.PI * p);
+  const c = fraction == null ? Math.cos(2 * Math.PI * p) : 1 - 2 * fraction;
   const a = Math.abs(r * c);
   const waxing = p < 0.5;
   ctx.beginPath();
@@ -603,7 +610,7 @@ function paintMoon(ctx, cx, cy, r, p, opt = {}) {
 
   // 亮面
   ctx.save();
-  moonLitPath(ctx, cx, cy, r, p);
+  moonLitPath(ctx, cx, cy, r, p, opt.fraction);
   ctx.clip();
   const lx = cx + Math.cos(2 * Math.PI * mod1(p) - Math.PI / 2) * r * .45;
   const lit = ctx.createRadialGradient(lx, cy - r * .3, r * .12, cx, cy, r * 1.15);
@@ -715,7 +722,8 @@ addEventListener('resize', () => { sizeMain(); paintMain(0); layoutOrbit(); });
 function paintMain() {
   const size = mainCv._size || sizeMain();
   mctx.clearRect(0, 0, size, size);
-  paintMoon(mctx, size / 2, size / 2, size * .33, phaseNow);
+  paintMoon(mctx, size / 2, size / 2, size * .33, phaseNow,
+    phaseMode === 'today' ? { fraction: Lunar.current().fraction } : {});
 }
 
 /* 轨道上的 8 个点 */
@@ -743,7 +751,7 @@ function setPhaseMode(mode) {
   cycleBtn.classList.toggle('is-on', mode === 'cycle');
   cycleBtn.textContent = mode === 'today' ? '↻ 演示月相' : '☾ 今日月相';
   phaseHint.textContent = mode === 'today'
-    ? '今日月相（估算） · ← → 预览'
+    ? '今日月相'
     : mode === 'cycle' ? '月相演示 · 数据随演示变化' : '月相预览 · ← → 调整';
 }
 function startCycle() {
@@ -854,15 +862,17 @@ const mIllum = document.getElementById('mIllum');
 /* ============================================================
    5. UI 交互
    ============================================================ */
-const fmtDate = d => `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+
 function updateReadout() {
-  const p = phaseMode === 'today' ? realPhase() : mod1(phaseNow);
+  const today = Lunar.current();
+  const isToday = phaseMode === 'today';
+  const p = isToday ? today.phase : mod1(phaseNow);
   const i = phaseIndex(p);
   rName.textContent = PHASES[i].name;
   rEn.textContent = PHASES[i].en;
-  rDate.textContent = fmtDate(new Date());
-  mAge.textContent = (p * SYNODIC).toFixed(1) + ' 天';
-  mIllum.textContent = (illum(p) * 100).toFixed(0) + '%';
+  rDate.textContent = today.dateText;
+  mAge.textContent = (isToday ? today.ageDays : p * SYNODIC).toFixed(1) + ' 天';
+  mIllum.textContent = ((isToday ? today.fraction : illum(p)) * 100).toFixed(1) + '%';
   // navPhase.textContent = PHASES[i].name;
   // cards.forEach((c, k) => c.classList.toggle('active', k === i));
   [...orbitEl.children].forEach((d, k) => d.classList.toggle('active', k === i));
@@ -877,8 +887,8 @@ let prev = Date.now(), acc = 0;
 function loop(t) {
   const dt = Math.min(Date.now() - prev, 500); prev = Date.now();
   if (phaseMode === 'cycle') phaseTarget += dt * CYCLE_SPEED; // 仅在演示模式加速
-  else if (phaseMode === 'today') aimAt(realPhase());
-  phaseNow += (phaseTarget - phaseNow) * (1 - Math.exp(-dt / 260)); // 与帧率无关的平滑收敛
+  if (phaseMode === 'today') phaseNow = phaseTarget = realPhase();
+  else phaseNow += (phaseTarget - phaseNow) * (1 - Math.exp(-dt / 260)); // 与帧率无关的平滑收敛
   paintMain();
   acc += dt;
   if (acc > 100) { acc = 0; updateReadout(); }
