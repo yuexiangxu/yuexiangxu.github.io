@@ -120,7 +120,7 @@
 
   /* ============ Hero ============ */
   .hero{
-    min-height:100svh;display:flex;align-items:center;
+    min-height:100svh;display:flex;align-items:center;overflow:hidden;
     padding-top:110px;padding-bottom:80px;
   }
   .hero .wrap{
@@ -136,7 +136,7 @@
   }
   .hero .lede{margin-top:26px;color:var(--ink-soft);font-size:clamp(15px,1.6vw,17px);max-width:46ch}
   .hero h1 .nb{white-space:nowrap}
-  .hero .lede span{color:var(--gold)}
+  .hero .lede span,.hero .lede strong{color:var(--gold)}
   .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
   .hero-meta{display:flex;flex-wrap:wrap;gap:26px;margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}
   .hero-meta div small{display:block;font-size:11.5px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
@@ -330,6 +330,7 @@
 <canvas id="stars"></canvas>
 
 <!-- ================= 导航 ================= -->
+<!-- 暂时停用，保留代码供后续恢复。
 <header class="nav" id="nav">
   <a class="brand" href="#home"><i></i>权义改</a>
   <nav class="nav-links" id="navLinks">
@@ -341,6 +342,7 @@
   </nav>
   <div class="nav-pill">今日 <b id="navPhase">满月</b></div>
 </header>
+-->
 
 <main>
   <!-- ================= Hero ================= -->
@@ -354,19 +356,19 @@
           <span class="line">在盈亏之间，<span class="nb">做长期的事</span></span>
         </h1>
         <p class="lede reveal" style="--d:160ms">
-          AI 产品经理 / 关注大模型落地与真实体验。<br />
-          在这个叫「月相序」的地方，我相信万事都有自己的<span>月相</span>——<br />
-          有盈有亏，有暗有明，安静地循环，也安静地生长。
+          你好，我是 <strong>权义改</strong>，一名 AI 产品经理。<br />
+          AI 产品经理 / 关注大模型落地与真实体验，日常是把模糊的想法，翻译成能上线、能验证、能迭代的东西。<br />
+          我喜欢把复杂的东西收拾清楚：模型能力的边界、交互路径、评测指标，以及那些用户说不出但能感觉到的小细节。
         </p>
         <div class="hero-actions reveal" style="--d:240ms">
-          <a class="btn primary" href="#works">看看我的作品</a>
-          <button class="btn" id="btnReal">☾ 回到今日月相</button>
+          <a class="btn primary" href="https://github.com/yuexiangxu" target="_blank" rel="noopener noreferrer">看看我的作品</a>
+          <button class="btn" type="button" id="wechatBtn" aria-haspopup="dialog" aria-controls="wechatDialog">公众号</button>
           <button class="btn is-on" id="btnCycle">↻ 循环月相</button>
         </div>
         <div class="hero-meta reveal" style="--d:320ms">
           <div><small>Moon Age</small><b id="mAge">—</b></div>
           <div><small>Illumination</small><b id="mIllum">—</b></div>
-          <div><small>Location</small><b>杭州 · 30°N</b></div>
+          <div><small>Location</small><b>北京 · 40°N</b></div>
         </div>
       </div>
 
@@ -383,13 +385,14 @@
           <div><small>English</small><b id="rEn">Full Moon</b></div>
           <div><small>Date</small><b id="rDate">—</b></div>
         </div>
-        <p class="stage-hint">← → 方向键拨动月相 · 点击下方卡片可归位</p>
+        <p class="stage-hint">← → 方向键拨动月相</p>
       </div>
     </div>
-    <div class="scroll-cue"><span>SCROLL</span><i></i></div>
+    <!-- <div class="scroll-cue"><span>SCROLL</span><i></i></div> -->
   </section>
 
   <!-- ================= 月相八记 ================= -->
+  <!-- 暂时停用，保留代码供后续恢复。
   <section id="lunar">
     <div class="wrap">
       <div class="sec-head reveal">
@@ -400,8 +403,10 @@
       <div class="phase-grid" id="phaseGrid"></div>
     </div>
   </section>
+-->
 
-  <!-- ================= 关于 ================= -->
+  <!-- ================= 关于（✏️ 替换为你的自我介绍） ================= -->
+  <!-- 暂时停用，保留代码供后续恢复。
   <section id="about">
     <div class="wrap about">
       <div class="portrait reveal">
@@ -410,7 +415,6 @@
       <div class="about-body reveal" style="--d:120ms">
         <span class="eyebrow">02 — About</span>
         <h2>白天定义问题，夜里看月亮</h2>
-        <!-- ✏️ 替换为你的自我介绍 -->
         <p>你好，我是 <b>权义改</b>，一名 AI 产品经理。日常是把模糊的想法，翻译成能上线、能验证、能迭代的东西。</p>
         <p>这个站点叫「月相序」——一切都在变，但变化有它自己的节律。我喜欢用这种节律去看需求、看数据、看一个功能从无到有。</p>
         <p>我喜欢把复杂的东西收拾清楚：模型能力的边界、交互路径、评测指标，以及那些用户说不出但能感觉到的小细节。</p>
@@ -427,8 +431,10 @@
       </div>
     </div>
   </section>
+-->
 
   <!-- ================= 作品 ================= -->
+  <!-- 暂时停用，保留代码供后续恢复。
   <section id="works">
     <div class="wrap">
       <div class="sec-head reveal">
@@ -439,8 +445,10 @@
       <div class="works" id="works-grid"></div>
     </div>
   </section>
+-->
 
   <!-- ================= 联系 ================= -->
+  <!-- 暂时停用，保留代码供后续恢复。
   <section id="contact" class="contact">
     <div class="wrap reveal">
       <span class="eyebrow">04 — Contact</span>
@@ -456,6 +464,7 @@
       </div>
     </div>
   </section>
+-->
 </main>
 
 <footer>
@@ -700,11 +709,11 @@ function stopCycle() {
   document.getElementById('btnCycle').classList.remove('is-on');
 }
 document.getElementById('btnCycle').addEventListener('click', () => cycling ? stopCycle() : startCycle());
-document.getElementById('btnReal').addEventListener('click', () => {
-  stopCycle();
-  aimAt(realPhase());
-  toast('已回到今日月相');
-});
+// document.getElementById('btnReal').addEventListener('click', () => {
+//   stopCycle();
+//   aimAt(realPhase());
+//   toast('已回到今日月相');
+// });
 
 /* 方向键微调 */
 addEventListener('keydown', e => {
@@ -723,74 +732,75 @@ const rEn = document.getElementById('rEn');
 const rDate = document.getElementById('rDate');
 const mAge = document.getElementById('mAge');
 const mIllum = document.getElementById('mIllum');
-const navPhase = document.getElementById('navPhase');
-const grid = document.getElementById('phaseGrid');
-const cards = [];
-
-PHASES.forEach((ph, i) => {
-  const el = document.createElement('article');
-  el.className = 'pcard reveal';
-  el.style.setProperty('--d', (i * 70) + 'ms');
-  el.innerHTML = `
-    <span class="idx">0${i + 1}</span>
-    <canvas width="96" height="96"></canvas>
-    <h3>${ph.name}</h3>
-    <span class="en">${ph.en}</span>
-    <p>${ph.desc}</p>
-    <div class="bar"><i></i></div>`;
-  el.addEventListener('click', () => {
-    stopCycle();
-    aimAt(i / 8);
-    toast(`月亮走到了「${ph.name}」`);
-  });
-  grid.appendChild(el);
-  cards.push(el);
-
-  const cv = el.querySelector('canvas');
-  const c = cv.getContext('2d');
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  cv.width = 96 * dpr; cv.height = 96 * dpr;
-  cv.style.width = '96px'; cv.style.height = '96px';
-  c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  paintMoon(c, 48, 48, 30, ph.p, { glowScale: 1.9, glow: .16 });
-  el.querySelector('.bar i').style.width = (illum(ph.p) * 100).toFixed(0) + '%';
-});
-
-/* 关于我里的那轮小月亮 */
-(function () {
-  const cv = document.getElementById('moonAbout');
-  const c = cv.getContext('2d');
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  cv.width = 260 * dpr; cv.height = 260 * dpr;
-  cv.style.width = '78%'; cv.style.height = 'auto';
-  c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  paintMoon(c, 130, 130, 78, realPhase(), { glowScale: 1.75, glow: .2 });
-})();
-
-/* 作品数据（✏️ 自行替换） */
-const WORKS = [
-  { tag:'AI Product · 2025', title:'月相日历', desc:'一个听得懂自然语言的日历助手，把待办、节律与月相放进同一条时间线。' },
-  { tag:'LLM Application · 2024', title:'夜航 · 知识库问答', desc:'面向内部文档的 RAG 问答产品，从 0 到 1 定义评测集与反馈闭环。' },
-  { tag:'Data Product · 2023', title:'星轨 · 指标看板', desc:'为运营团队重做的指标体系，把 40 张分散报表收敛成 3 个核心视图。' }
-];
-const worksGrid = document.getElementById('works-grid');
-WORKS.forEach((w, i) => {
-  const el = document.createElement('article');
-  el.className = 'work reveal';
-  el.style.setProperty('--d', (i * 110) + 'ms');
-  const s1 = 60 + i * 18, s2 = 120 + i * 26;
-  el.innerHTML = `
-    <div class="thumb">
-      <span style="width:${s1}px;height:${s1}px;left:${12 + i * 6}%;top:${18}%;background:radial-gradient(circle at 36% 32%,#fffbee,#ded0a4 62%,#96824f)"></span>
-      <span style="width:${s2}px;height:${s2}px;right:-6%;bottom:-24%"></span>
-    </div>
-    <div class="body">
-      <em>${w.tag}</em>
-      <h3>${w.title}</h3>
-      <p>${w.desc}</p>
-    </div>`;
-  worksGrid.appendChild(el);
-});
+// 导航与 01–04 内容区暂时停用，以下关联脚本一并保留为注释。
+// const navPhase = document.getElementById('navPhase');
+// const grid = document.getElementById('phaseGrid');
+// const cards = [];
+//
+// PHASES.forEach((ph, i) => {
+//   const el = document.createElement('article');
+//   el.className = 'pcard reveal';
+//   el.style.setProperty('--d', (i * 70) + 'ms');
+//   el.innerHTML = `
+//     <span class="idx">0${i + 1}</span>
+//     <canvas width="96" height="96"></canvas>
+//     <h3>${ph.name}</h3>
+//     <span class="en">${ph.en}</span>
+//     <p>${ph.desc}</p>
+//     <div class="bar"><i></i></div>`;
+//   el.addEventListener('click', () => {
+//     stopCycle();
+//     aimAt(i / 8);
+//     toast(`月亮走到了「${ph.name}」`);
+//   });
+//   grid.appendChild(el);
+//   cards.push(el);
+//
+//   const cv = el.querySelector('canvas');
+//   const c = cv.getContext('2d');
+//   const dpr = Math.min(devicePixelRatio || 1, 2);
+//   cv.width = 96 * dpr; cv.height = 96 * dpr;
+//   cv.style.width = '96px'; cv.style.height = '96px';
+//   c.setTransform(dpr, 0, 0, dpr, 0, 0);
+//   paintMoon(c, 48, 48, 30, ph.p, { glowScale: 1.9, glow: .16 });
+//   el.querySelector('.bar i').style.width = (illum(ph.p) * 100).toFixed(0) + '%';
+// });
+//
+// /* 关于我里的那轮小月亮 */
+// (function () {
+//   const cv = document.getElementById('moonAbout');
+//   const c = cv.getContext('2d');
+//   const dpr = Math.min(devicePixelRatio || 1, 2);
+//   cv.width = 260 * dpr; cv.height = 260 * dpr;
+//   cv.style.width = '78%'; cv.style.height = 'auto';
+//   c.setTransform(dpr, 0, 0, dpr, 0, 0);
+//   paintMoon(c, 130, 130, 78, realPhase(), { glowScale: 1.75, glow: .2 });
+// })();
+//
+// /* 作品数据（✏️ 自行替换） */
+// const WORKS = [
+//   { tag:'AI Product · 2025', title:'月相日历', desc:'一个听得懂自然语言的日历助手，把待办、节律与月相放进同一条时间线。' },
+//   { tag:'LLM Application · 2024', title:'夜航 · 知识库问答', desc:'面向内部文档的 RAG 问答产品，从 0 到 1 定义评测集与反馈闭环。' },
+//   { tag:'Data Product · 2023', title:'星轨 · 指标看板', desc:'为运营团队重做的指标体系，把 40 张分散报表收敛成 3 个核心视图。' }
+// ];
+// const worksGrid = document.getElementById('works-grid');
+// WORKS.forEach((w, i) => {
+//   const el = document.createElement('article');
+//   el.className = 'work reveal';
+//   el.style.setProperty('--d', (i * 110) + 'ms');
+//   const s1 = 60 + i * 18, s2 = 120 + i * 26;
+//   el.innerHTML = `
+//     <div class="thumb">
+//       <span style="width:${s1}px;height:${s1}px;left:${12 + i * 6}%;top:${18}%;background:radial-gradient(circle at 36% 32%,#fffbee,#ded0a4 62%,#96824f)"></span>
+//       <span style="width:${s2}px;height:${s2}px;right:-6%;bottom:-24%"></span>
+//     </div>
+//     <div class="body">
+//       <em>${w.tag}</em>
+//       <h3>${w.title}</h3>
+//       <p>${w.desc}</p>
+//     </div>`;
+//   worksGrid.appendChild(el);
+// });
 
 /* ============================================================
    5. UI 交互
@@ -804,8 +814,8 @@ function updateReadout() {
   rDate.textContent = fmtDate(new Date());
   mAge.textContent = (p * SYNODIC).toFixed(1) + ' 天';
   mIllum.textContent = (illum(p) * 100).toFixed(0) + '%';
-  navPhase.textContent = PHASES[i].name;
-  cards.forEach((c, k) => c.classList.toggle('active', k === i));
+  // navPhase.textContent = PHASES[i].name;
+  // cards.forEach((c, k) => c.classList.toggle('active', k === i));
   [...orbitEl.children].forEach((d, k) => d.classList.toggle('active', k === i));
 }
 const rp0 = realPhase();
@@ -828,13 +838,13 @@ requestAnimationFrame(loop);
 updateReadout();
 
 /* 滚动进度 + 导航态 + 入场 */
-const nav = document.getElementById('nav');
+// const nav = document.getElementById('nav');
 const progress = document.getElementById('progress');
 function onScroll() {
   const h = document.documentElement;
   const max = h.scrollHeight - innerHeight;
   progress.style.width = (max > 0 ? Math.min(100, (h.scrollTop / max) * 100) : 0) + '%';
-  nav.classList.toggle('solid', h.scrollTop > 40);
+  // nav.classList.toggle('solid', h.scrollTop > 40);
 }
 onScroll();
 addEventListener('scroll', onScroll, { passive: true });
@@ -844,17 +854,17 @@ const io = new IntersectionObserver(es => {
 }, { threshold: .16 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-const links = [...document.querySelectorAll('#navLinks a')];
-const spy = new IntersectionObserver(es => {
-  es.forEach(e => {
-    if (e.isIntersecting) {
-      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
-    }
-  });
-}, { rootMargin: '-45% 0px -50% 0px' });
-['home', 'lunar', 'about', 'works', 'contact'].forEach(id => {
-  const el = document.getElementById(id); if (el) spy.observe(el);
-});
+// const links = [...document.querySelectorAll('#navLinks a')];
+// const spy = new IntersectionObserver(es => {
+//   es.forEach(e => {
+//     if (e.isIntersecting) {
+//       links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+//     }
+//   });
+// }, { rootMargin: '-45% 0px -50% 0px' });
+// ['home', 'lunar', 'about', 'works', 'contact'].forEach(id => {
+//   const el = document.getElementById(id); if (el) spy.observe(el);
+// });
 
 /* 复制邮箱 */
 const toastEl = document.getElementById('toast');
@@ -865,11 +875,11 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
 }
-document.getElementById('mailBtn').addEventListener('click', async () => {
-  const text = document.getElementById('mailText').textContent.trim();
-  try { await navigator.clipboard.writeText(text); toast('邮箱已复制：' + text); }
-  catch { toast(text); }
-});
+// document.getElementById('mailBtn').addEventListener('click', async () => {
+//   const text = document.getElementById('mailText').textContent.trim();
+//   try { await navigator.clipboard.writeText(text); toast('邮箱已复制：' + text); }
+//   catch { toast(text); }
+// });
 
 /* 公众号二维码 */
 const wechatDialog = document.getElementById('wechatDialog');
