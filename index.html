@@ -399,11 +399,11 @@
         <div class="hero-actions reveal" style="--d:240ms">
           <a class="btn primary" href="https://github.com/yuexiangxu" target="_blank" rel="noopener noreferrer">GitHub</a>
           <button class="btn" type="button" id="wechatBtn" aria-haspopup="dialog" aria-controls="wechatDialog">公众号</button>
-          <button class="btn is-on" id="btnCycle">↻ 循环月相</button>
+          <button class="btn" type="button" id="btnCycle">↻ 演示月相</button>
         </div>
         <div class="hero-meta reveal" style="--d:320ms">
-          <div><small>Moon Age</small><b id="mAge">—</b></div>
-          <div><small>Illumination</small><b id="mIllum">—</b></div>
+          <div><small title="距上一次新月经过的天数（估算）">月龄</small><b id="mAge">—</b></div>
+          <div><small title="从地球看到的月面中，被太阳照亮的比例（估算）">亮面比例</small><b id="mIllum">—</b></div>
           <div><small>Location</small><b>北京 · 40°N</b></div>
         </div>
       </div>
@@ -421,7 +421,7 @@
           <div><small>English</small><b id="rEn">Full Moon</b></div>
           <div><small>Date</small><b id="rDate">—</b></div>
         </div>
-        <p class="stage-hint">← → 方向键拨动月相</p>
+        <p class="stage-hint" id="phaseHint">今日月相（估算） · ← → 预览</p>
       </div>
     </div>
     <!-- <div class="scroll-cue"><span>SCROLL</span><i></i></div> -->
@@ -688,7 +688,7 @@ const mainCv = document.getElementById('moonMain');
 const mctx = mainCv.getContext('2d');
 let phaseNow = realPhase();      // 当前显示的相位
 let phaseTarget = phaseNow;      // 目标相位
-let cycling = true;              // 是否自动循环
+let phaseMode = 'today';         // today：今日实况；cycle：循环演示；preview：手动预览
 const CYCLE_SPEED = 1 / 20800;   // 相位/毫秒：约 20.8 秒走完一个朔望月
 
 /** 让目标相位沿最短弧线走向 p（避免月亮多绕几圈） */
@@ -735,16 +735,29 @@ function layoutOrbit() {
 }
 layoutOrbit();
 
-/* 循环 / 归位 */
+/* 默认显示今日月相；只有主动点击时才演示加速变化。 */
+const cycleBtn = document.getElementById('btnCycle');
+const phaseHint = document.getElementById('phaseHint');
+function setPhaseMode(mode) {
+  phaseMode = mode;
+  cycleBtn.classList.toggle('is-on', mode === 'cycle');
+  cycleBtn.textContent = mode === 'today' ? '↻ 演示月相' : '☾ 今日月相';
+  phaseHint.textContent = mode === 'today'
+    ? '今日月相（估算） · ← → 预览'
+    : mode === 'cycle' ? '月相演示 · 数据随演示变化' : '月相预览 · ← → 调整';
+}
 function startCycle() {
-  cycling = true;
-  document.getElementById('btnCycle').classList.add('is-on');
+  setPhaseMode('cycle');
 }
 function stopCycle() {
-  cycling = false;
-  document.getElementById('btnCycle').classList.remove('is-on');
+  setPhaseMode('preview');
 }
-document.getElementById('btnCycle').addEventListener('click', () => cycling ? stopCycle() : startCycle());
+function returnToToday() {
+  setPhaseMode('today');
+  aimAt(realPhase());
+  updateReadout();
+}
+cycleBtn.addEventListener('click', () => phaseMode === 'today' ? startCycle() : returnToToday());
 // document.getElementById('btnReal').addEventListener('click', () => {
 //   stopCycle();
 //   aimAt(realPhase());
@@ -754,11 +767,11 @@ document.getElementById('btnCycle').addEventListener('click', () => cycling ? st
 /* 方向键微调 */
 addEventListener('keydown', e => {
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-  if (/input|textarea/i.test(document.activeElement.tagName)) return;
+  if (/input|textarea/i.test(document.activeElement.tagName) || document.activeElement.isContentEditable || document.querySelector('dialog[open]')) return;
+  e.preventDefault();
   stopCycle();
   phaseTarget += e.key === 'ArrowRight' ? 0.0625 : -0.0625;
 });
-startCycle();
 
 /* ============================================================
    4. 相位读数 & 卡片
@@ -843,7 +856,7 @@ const mIllum = document.getElementById('mIllum');
    ============================================================ */
 const fmtDate = d => `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
 function updateReadout() {
-  const p = mod1(phaseNow);
+  const p = phaseMode === 'today' ? realPhase() : mod1(phaseNow);
   const i = phaseIndex(p);
   rName.textContent = PHASES[i].name;
   rEn.textContent = PHASES[i].en;
@@ -863,7 +876,8 @@ document.getElementById('year').textContent = new Date().getFullYear();
 let prev = Date.now(), acc = 0;
 function loop(t) {
   const dt = Math.min(Date.now() - prev, 500); prev = Date.now();
-  if (cycling) phaseTarget += dt * CYCLE_SPEED;              // 按真实时间推进
+  if (phaseMode === 'cycle') phaseTarget += dt * CYCLE_SPEED; // 仅在演示模式加速
+  else if (phaseMode === 'today') aimAt(realPhase());
   phaseNow += (phaseTarget - phaseNow) * (1 - Math.exp(-dt / 260)); // 与帧率无关的平滑收敛
   paintMain();
   acc += dt;
